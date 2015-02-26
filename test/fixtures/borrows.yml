@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  end_up: 2015-02-26 20:40:11
+  book_id: 
+
+two:
+  end_up: 2015-02-26 20:40:11
+  book_id: 
