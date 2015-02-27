@@ -20,6 +20,7 @@ class Book
       self.title = self.author = "Unknown"
     end
     self.save
+    self.clear_ISBN
   end
 
   has_many :borrows, inverse_of: :book
@@ -79,5 +80,10 @@ class Book
 
   def avaliable_on_douban?
     !!(self.douban_info)
+  end
+
+  def clear_ISBN
+    isbn.gsub('-','')
+    self.save
   end
 end
