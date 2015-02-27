@@ -7,7 +7,7 @@ class Book
   field :title, type: String
   field :author, type: String
   field :rating, type: Float, default: 5.0
-  field :douban_data, type: Hash
+  field :douban_data, type: Hash, default: {}
 
   after_create do
     @date = self.douban_info
@@ -16,6 +16,7 @@ class Book
       self.title = @data["title"]
       self.author = @data["author"].join ','
       self.rating = @data["rating"]["average"].to_f
+      self.douban_data = @data.to_hash
     else
       self.title = self.author = "Unknown"
     end
