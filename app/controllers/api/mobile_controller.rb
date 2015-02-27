@@ -5,7 +5,11 @@ class Api::MobileController < Api::BaseController
   end
 
   def book
-    @book = Book.where(isbn: params[:id]).first
-    render json: @book
+    @book = Book.where(isbn: params[:id]).first || Book.where(isbn: '978' + params[:id]).first
+    @info = @book.douban_data || {}
+    @info[:status] = @book.status
+    @info[:can_borrow] = @book.can_borrow?
+    @info[:times] = @book.borrows.all.size
+    render json: @info
   end
 end
