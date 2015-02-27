@@ -7,9 +7,11 @@ class Book
   field :title, type: String
   field :author, type: String
   field :rating, type: Float, default: 5.0
+  field :douban_data, type: Hash
 
   after_create do
     @date = self.douban_info
+    self.douban_data = @data.to_hash
     if @data
       self.title = @data["title"]
       self.author = @data["author"].join ','
@@ -38,10 +40,10 @@ class Book
     end
   end
   
-  DOUBAN_API = "https://api.douban.com/v2/book/isbn/"
+  DOUBAN_API = "https://api.douban.com/v2/book/isbn/" #?apikey=#{Setting.douban_api_key}
   def douban_info
     begin
-      open "#{Book::DOUBAN_API}#{isbn}?apikey=#{Setting.douban_api_key}" do |http|
+      open "#{Book::DOUBAN_API}#{isbn}" do |http|
         @data = JSON.parse http.read.to_s
       end
     rescue
@@ -62,12 +64,13 @@ class Book
       self.title = @data["title"]
       self.author = @data["author"].join ','
       self.rating = @data["rating"]["average"].to_f
+      self.douban_data = @data
       self.save
     end
   end
 
   def info
-    douban_info || {
+    douban_data || {
       "title" => title,
       "author" => author.split(',') ,
       "rating" => rating
