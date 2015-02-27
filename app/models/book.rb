@@ -11,7 +11,6 @@ class Book
 
   after_create do
     @date = self.douban_info
-    self.douban_data = @data.to_hash
     if @data
       self.title = @data["title"]
       self.author = @data["author"].join ','
