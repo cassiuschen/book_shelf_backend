@@ -1,0 +1,31 @@
+h1 
+  | 书架列表
+  | / 共
+  = Book.all.size
+  | 本
+hr
+h4 style="display:inline-block;" 新建图书 
+= form_for Book.new, html: {style: "display:inline-block"} do |f|
+  = f.text_field :isbn
+  = f.submit '提交'
+hr
+
+- for book in Book.all.sort_by{|b| -b.rating}
+  dl = book.title
+  dd = "ISBN " + book.isbn
+  dd = "评分： #{book.rating}"
+  dd = book.status
+  dd = "已被借#{book.borrows.all.size}次"
+  - unless book.can_borrow?
+    dd
+      a 已归还
+  - if book.avaliable_on_douban?
+    dd
+      = link_to update_from_douban_path(book)
+        | 从豆瓣更新数据
+  dd = link_to '删除', book_path(book), method: :delete
+
+hr
+
+
+

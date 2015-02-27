@@ -1,0 +1,12 @@
+defaults: &defaults
+  douban_secret: 54fd61f4a620ab96
+  douban_api_key: 0b7cfa4c8c8a14a72276eee5a59e3df5
+
+development:
+  <<: *defaults
+
+production:
+  <<: *defaults
+
+test:
+  <<: *defaults

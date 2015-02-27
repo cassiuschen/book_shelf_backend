@@ -1,5 +1,13 @@
 Rails.application.routes.draw do
+  resources :books
+
+  get 'books/update_from_douban/:book_id' => 'books#update_from_douban', as: :update_from_douban
+
   devise_for :users
+
+  namespace :api do
+    get 'books' => 'mobile#books'
+  end
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
