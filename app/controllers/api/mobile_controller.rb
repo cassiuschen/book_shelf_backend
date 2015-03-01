@@ -6,11 +6,21 @@ class Api::MobileController < Api::BaseController
 
   def book
     @book = Book.where(isbn: params[:id]).first || Book.where(isbn: '978' + params[:id]).first
-    @info = @book.info || {}
-    @info[:status] = @book.status
-    @info[:can_borrow] = @book.can_borrow?
-    @info[:times] = @book.confirmed_applications.size
-    render json: @info
+    unless params[:attr]
+      @info = @book.info || {}
+      @info[:status] = @book.status
+      @info[:can_borrow] = @book.can_borrow?
+      @info[:times] = @book.confirmed_applications.size
+      render json: @info
+    else
+      begin
+        attr = params[:attr]
+        render json: {result: @book.method(attr.to_sym).call}
+      rescue
+        render json: nil
+      end
+    end
+    
   end
 
   def borrow
