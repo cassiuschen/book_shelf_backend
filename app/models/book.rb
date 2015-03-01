@@ -8,6 +8,7 @@ class Book
   field :author, type: String
   field :rating, type: Float, default: 5.0
   field :douban_data, type: Hash, default: {}
+  field :douban_can_get, type: Boolean, default: true
 
   after_create do
     @date = self.douban_info
@@ -27,7 +28,7 @@ class Book
 
   def status
     begin
-      self.borrows.all.sort(&:created_at).first.state
+      self.confirmed_applications.map{|x| x.return_back ? 0 : 1}.sum < 1 ? '可借阅' : '已借出'
     rescue
       "可借阅"
     end
@@ -35,7 +36,7 @@ class Book
 
   def can_borrow?
     begin
-      self.borrows.all.sort(&:created_at).first.return_back
+      !!(self.confirmed_applications.map{|x| x.return_back ? 0 : 1}.sum == 0)
     rescue
       true
     end
@@ -53,8 +54,8 @@ class Book
     @data
   end
 
-  def return
-    @event = self.borrows.all.sort(&:created_at).first
+  def return_back
+    @event = self.current_borrow
     @event.return_back = true
     @event.save
   end
@@ -71,15 +72,26 @@ class Book
   end
 
   def info
-    douban_data || {
+    info = (self.douban_can_get)?(douban_data):({
       "title" => title,
       "author" => author.split(',') ,
-      "rating" => rating
-    }
+      "rating" => rating,
+      "isbn13" => isbn
+    })
+    info[:can_borrow] = can_borrow?
+    info
   end
 
   def avaliable_on_douban?
     !!(self.douban_info)
+  end
+
+  def confirmed_applications
+    self.borrows.where(confirmed: true)
+  end
+
+  def current_borrow
+    self.borrows.where(confirmed: true, return_back: false).first
   end
 
   def clear_ISBN

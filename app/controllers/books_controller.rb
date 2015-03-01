@@ -1,5 +1,5 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:create, :show, :edit, :destroy, :update, :update_from_douban]
+  before_action :set_book, except: [:index, :new, :create]
   def index
   end
 
@@ -15,7 +15,7 @@ class BooksController < ApplicationController
   # POST /ar.json
   def create
     @book = Book.create(create_book_params)
-    redirect_to books_path
+    redirect_to root_path
   end
 
   # PATCH/PUT /ar/1
@@ -45,7 +45,12 @@ class BooksController < ApplicationController
 
   def update_from_douban
     @book.update_from_douban
-    render :index
+    redirect_to root_path
+  end
+
+  def return_back
+    @book.return_back
+    redirect_to root_path
   end
 
   private

@@ -1,0 +1,44 @@
+h1 借书请求
+hr
+table
+  thead
+    tr
+      td 书籍名称
+      td 借书人  
+      td 申请日期
+      td colspan="2" 确认通过
+  tbody
+    - for (book_id, apps) in Borrow.all.group_by(&:book_id)
+      - for app in apps
+        - if app == apps.first
+          tr
+            td rowspan="#{apps.size}"
+              | 《
+              = Book.where(isbn: book_id).first.title
+              | 》
+
+            td = app.target
+            td = humanize_time app.created_at
+            td = app.confirmed ? '是' : '否'
+            - unless app.confirmed
+              td
+                button 通过该请求
+            - else
+              td
+            td
+              button 删除
+        - else
+          tr
+            td = app.target
+            td = humanize_time app.created_at
+            td = app.confirmed ? '是' : '否'
+            - unless app.confirmed
+              td
+                button 通过该请求
+            - else
+              td
+            td
+              button 删除
+        
+
+hr

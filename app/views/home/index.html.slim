@@ -1,0 +1,85 @@
+.page-header
+  h1
+    | 书架
+    small 
+      |    共
+      = Book.all.size
+      | 本
+= form_for Book.new, html: {class: "form-inline",style:"display:inline-block;"} do |f|
+  .form-group
+    label.control-label style="margin-right: 15px;" 新建图书
+    = f.text_field :isbn, class: "form-control"
+  .form-group
+    button.btn.btn-primary type="submit" 提交
+hr
+.content
+  #books
+    table.table.table-hover
+      thead
+        th 书名
+        th ISBN
+        th 评分
+        th 状态
+        th 借阅次数
+        th 操作
+      tbody
+        - for book in Book.all.sort_by{|b| -b.rating}
+          tr class="#{(book.can_borrow?)?(''):('warning')}"
+            td = book.title
+            td = book.isbn
+            td = "#{book.rating}"
+            td = book.status
+            td = "#{book.confirmed_applications.size}次"
+            td
+              - unless book.can_borrow?
+                = link_to return_back_path(book), class: 'btn btn-success'
+                  | 已归还
+              - if book.douban_can_get
+                = link_to update_from_douban_path(book), class: 'btn btn-info'
+                  | 从豆瓣更新数据
+              = link_to '删除', book_path(book), method: :delete, class: 'btn btn-danger'
+  /.more
+    a data-target="#books"
+      span.glyphicon.glyphicon-option-horizontal
+hr
+.content
+  #borrows
+    table.table.table-hover
+      thead
+        tr
+          th 书籍名称
+          th 借书人  
+          th 申请日期
+          th 操作
+      tbody
+        - for (book_id, apps) in Borrow.all.group_by(&:book_id)
+          - for app in apps
+            - if app == apps.first
+              tr 
+                td rowspan="#{apps.size}" 
+                  | 《
+                  = Book.where(isbn: book_id).first.title
+                  | 》
+
+                td class="#{app.table_class}" = app.target
+                td class="#{app.table_class}" = humanize_time app.created_at
+                td class="#{app.table_class}"
+                  - unless app.confirmed
+                    = link_to confirm_borrow_path(app), class: 'btn btn-success'
+                      | 通过该请求
+                  - else
+                    button.btn disabled="disabled" 已通过
+                  = link_to borrow_path(app), class: 'btn btn-danger', method: :delete
+                    | 删除
+            - else
+              tr class="#{app.table_class}"
+                td class="#{app.table_class}" = app.target
+                td class="#{app.table_class}" = humanize_time app.created_at
+                td class="#{app.table_class}"
+                  - unless app.confirmed
+                    = link_to confirm_borrow_path(app), class: 'btn btn-success'
+                      | 通过该请求
+                  - else
+                    button.btn disabled="disabled" 已通过
+                  = link_to borrow_path(app), class: 'btn btn-danger', method: :delete
+                    | 删除

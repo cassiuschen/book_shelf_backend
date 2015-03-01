@@ -1,13 +1,18 @@
 Rails.application.routes.draw do
+  get 'borrows' => 'borrows#index', as: :borrows
+  delete 'borrows/:id' => 'borrows#delete', as: :borrow
+  get 'borrows/confirm/:id' => 'borrows#confirm', as: :confirm_borrow
+
   resources :books
-
-  get 'books/update_from_douban/:book_id' => 'books#update_from_douban', as: :update_from_douban
-
+  root 'home#index'
+  get 'books/update_from_douban/:id' => 'books#update_from_douban', as: :update_from_douban
+  get 'books/return_back/:id' => 'books#return_back', as: :return_back
   devise_for :users
 
   namespace :api do
     get 'books' => 'mobile#books'
     get 'book' => 'mobile#book'
+    post 'borrow/:id' => 'mobile#borrow'
   end
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

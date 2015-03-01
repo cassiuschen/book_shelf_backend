@@ -6,10 +6,25 @@ class Api::MobileController < Api::BaseController
 
   def book
     @book = Book.where(isbn: params[:id]).first || Book.where(isbn: '978' + params[:id]).first
-    @info = @book.douban_data || {}
+    @info = @book.info || {}
     @info[:status] = @book.status
     @info[:can_borrow] = @book.can_borrow?
-    @info[:times] = @book.borrows.all.size
+    @info[:times] = @book.confirmed_applications.size
     render json: @info
+  end
+
+  def borrow
+    begin
+      @book = Book.where(isbn: params[:id]).first
+      @book.borrows.create(borrow_params)
+      render json: {status: 200}
+    rescue
+      render json: {status: 503}
+    end
+  end
+
+  private
+  def borrow_params
+    params.require('borrow').permit(:target, :phone)
   end
 end

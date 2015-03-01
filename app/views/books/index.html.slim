@@ -18,8 +18,9 @@ hr
   dd = "已被借#{book.borrows.all.size}次"
   - unless book.can_borrow?
     dd
-      a 已归还
-  - if book.avaliable_on_douban?
+      = link_to return_back_path(book)
+        | 已归还
+  - if book.douban_can_get
     dd
       = link_to update_from_douban_path(book)
         | 从豆瓣更新数据
