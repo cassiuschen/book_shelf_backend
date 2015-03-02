@@ -9,6 +9,9 @@ class Book
   field :rating, type: Float, default: 5.0
   field :douban_data, type: Hash, default: {}
   field :douban_can_get, type: Boolean, default: true
+  field :publisher, type: String, default: ""
+  field :summary, type: String
+
 
   after_create do
     @date = self.douban_info
@@ -18,6 +21,7 @@ class Book
       self.rating = @data["rating"]["average"].to_f
       self.douban_data = @data.to_hash
     else
+      self.douban_can_get = false
       self.title = self.author = "Unknown"
     end
     self.save
@@ -76,7 +80,9 @@ class Book
       "title" => title,
       "author" => author.split(',') ,
       "rating" => rating,
-      "isbn13" => isbn
+      "isbn13" => isbn,
+      "publisher" => publisher,
+      "summary" => summary
     })
     info[:can_borrow] = can_borrow?
     info
